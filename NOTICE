@@ -1,0 +1,13 @@
+Inworld SAVA
+Copyright 2026 Inworld AI
+
+The model weights were trained on Inworld first-party data, including data
+purchased from vendors under private terms, and on these third-party datasets:
+
+- pipecat smart-turn data v3.2, train split: CC BY 4.0,
+  https://huggingface.co/datasets/pipecat-ai/smart-turn-data-v3.2-train
+- VoxConverse, dev split: CC BY 4.0, https://github.com/joonson/voxconverse
+- VocalSound: CC BY-SA 4.0, https://github.com/YuanGongND/vocalsound
+- Tatoeba (CC BY 2.0 FR, https://tatoeba.org), FineWeb-2 (ODC-BY 1.0,
+  https://huggingface.co/datasets/HuggingFaceFW/fineweb-2) and C4 (ODC-BY 1.0,
+  https://huggingface.co/datasets/allenai/c4), as text for synthetic speech

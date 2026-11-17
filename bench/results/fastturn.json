@@ -1,0 +1,92 @@
+{
+ "clips": 22432,
+ "format": "fastturn",
+ "pad_ms": 0,
+ "anchor_ms": null,
+ "systems": {
+  "sava": {
+   "share_ended": {
+    "0.5": {
+     "complete/all": 0.619484669250119,
+     "complete/real": 0.619484669250119,
+     "complete/synthetic": null,
+     "incomplete/all": 0.3919846280538018,
+     "incomplete/real": 0.3919846280538018,
+     "incomplete/synthetic": null,
+     "backchannel/all": 0.09642857142857143,
+     "backchannel/real": 0.09642857142857143,
+     "backchannel/synthetic": null,
+     "wait/all": 0.386,
+     "wait/real": null,
+     "wait/synthetic": 0.386
+    }
+   },
+   "complete_vs_incomplete": {
+    "0.5": {
+     "all": {
+      "n": 18352,
+      "accuracy": 0.6172079337401918,
+      "acc_complete": 0.619484669250119,
+      "acc_incomplete": 0.6080153719461981,
+      "miss": 0.38051533074988103,
+      "false_alarm": 0.3919846280538018
+     },
+     "real": {
+      "n": 18352,
+      "accuracy": 0.6172079337401918,
+      "acc_complete": 0.619484669250119,
+      "acc_incomplete": 0.6080153719461981,
+      "miss": 0.38051533074988103,
+      "false_alarm": 0.3919846280538018
+     }
+    }
+   },
+   "auc": {
+    "all": 0.6480121904521325,
+    "real": 0.6480121904521325
+   }
+  },
+  "smart_turn": {
+   "share_ended": {
+    "0.5": {
+     "complete/all": 0.5037732000815827,
+     "complete/real": 0.5037732000815827,
+     "complete/synthetic": null,
+     "incomplete/all": 0.337633818281636,
+     "incomplete/real": 0.337633818281636,
+     "incomplete/synthetic": null,
+     "backchannel/all": 0.5087662337662338,
+     "backchannel/real": 0.5087662337662338,
+     "backchannel/synthetic": null,
+     "wait/all": 0.906,
+     "wait/real": null,
+     "wait/synthetic": 0.906
+    }
+   },
+   "complete_vs_incomplete": {
+    "0.5": {
+     "all": {
+      "n": 18352,
+      "accuracy": 0.5352550130775937,
+      "acc_complete": 0.5037732000815827,
+      "acc_incomplete": 0.662366181718364,
+      "miss": 0.4962267999184173,
+      "false_alarm": 0.337633818281636
+     },
+     "real": {
+      "n": 18352,
+      "accuracy": 0.5352550130775937,
+      "acc_complete": 0.5037732000815827,
+      "acc_incomplete": 0.662366181718364,
+      "miss": 0.4962267999184173,
+      "false_alarm": 0.337633818281636
+     }
+    }
+   },
+   "auc": {
+    "all": 0.6210707881123272,
+    "real": 0.6210707881123272
+   }
+  }
+ }
+}

@@ -1,0 +1,19 @@
+__pycache__/
+*.pyc
+.venv/
+dist/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.nfs*
+.env
+
+# local only: checkpoints, benchmark audio, scratch
+models/
+data/
+staging/
+*.safetensors
+
+# bench/results holds the published scores only; other runs write elsewhere
+bench/results/*
+!bench/results/*.json

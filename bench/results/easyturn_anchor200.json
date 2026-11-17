@@ -1,0 +1,110 @@
+{
+ "clips": 800,
+ "format": "easyturn",
+ "pad_ms": 0,
+ "anchor_ms": 200,
+ "systems": {
+  "sava": {
+   "share_ended": {
+    "0.5": {
+     "complete/all": 0.99,
+     "complete/real": 0.98,
+     "complete/synthetic": 1.0,
+     "incomplete/all": 0.9233333333333333,
+     "incomplete/real": 0.94,
+     "incomplete/synthetic": 0.9066666666666666,
+     "backchannel/all": 0.93,
+     "backchannel/real": 0.92,
+     "backchannel/synthetic": 0.94,
+     "wait/all": 0.91,
+     "wait/real": 0.84,
+     "wait/synthetic": 0.98
+    }
+   },
+   "complete_vs_incomplete": {
+    "0.5": {
+     "all": {
+      "n": 600,
+      "accuracy": 0.5333333333333333,
+      "acc_complete": 0.99,
+      "acc_incomplete": 0.07666666666666666,
+      "miss": 0.01,
+      "false_alarm": 0.9233333333333333
+     },
+     "real": {
+      "n": 300,
+      "accuracy": 0.52,
+      "acc_complete": 0.98,
+      "acc_incomplete": 0.06,
+      "miss": 0.02,
+      "false_alarm": 0.94
+     },
+     "synthetic": {
+      "n": 300,
+      "accuracy": 0.5466666666666666,
+      "acc_complete": 1.0,
+      "acc_incomplete": 0.09333333333333334,
+      "miss": 0.0,
+      "false_alarm": 0.9066666666666666
+     }
+    }
+   },
+   "auc": {
+    "all": 0.7923,
+    "real": 0.7262666666666666,
+    "synthetic": 0.8530222222222222
+   }
+  },
+  "smart_turn": {
+   "share_ended": {
+    "0.5": {
+     "complete/all": 0.8833333333333333,
+     "complete/real": 0.8266666666666667,
+     "complete/synthetic": 0.94,
+     "incomplete/all": 0.34,
+     "incomplete/real": 0.28,
+     "incomplete/synthetic": 0.4,
+     "backchannel/all": 0.73,
+     "backchannel/real": 0.6,
+     "backchannel/synthetic": 0.86,
+     "wait/all": 0.85,
+     "wait/real": 0.84,
+     "wait/synthetic": 0.86
+    }
+   },
+   "complete_vs_incomplete": {
+    "0.5": {
+     "all": {
+      "n": 600,
+      "accuracy": 0.7716666666666666,
+      "acc_complete": 0.8833333333333333,
+      "acc_incomplete": 0.66,
+      "miss": 0.11666666666666667,
+      "false_alarm": 0.34
+     },
+     "real": {
+      "n": 300,
+      "accuracy": 0.7733333333333333,
+      "acc_complete": 0.8266666666666667,
+      "acc_incomplete": 0.72,
+      "miss": 0.17333333333333334,
+      "false_alarm": 0.28
+     },
+     "synthetic": {
+      "n": 300,
+      "accuracy": 0.77,
+      "acc_complete": 0.94,
+      "acc_incomplete": 0.6,
+      "miss": 0.06,
+      "false_alarm": 0.4
+     }
+    }
+   },
+   "auc": {
+    "all": 0.8396111111111111,
+    "real": 0.848488888888889,
+    "synthetic": 0.8430222222222222
+   }
+  }
+ }
+}

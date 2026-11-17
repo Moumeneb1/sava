@@ -1,0 +1,15 @@
+{
+ "clips": 2000,
+ "systems": {
+  "sava": {
+   "clips_without_a_false_trigger": 0.973,
+   "clips_without_a_frame_above_threshold": 0.9315,
+   "frames_above_threshold": 0.003192
+  },
+  "silero": {
+   "clips_without_a_false_trigger": 0.932,
+   "clips_without_a_frame_above_threshold": 0.8705,
+   "frames_above_threshold": 0.005684
+  }
+ }
+}

@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="468" viewBox="0 0 1040 468" role="img" aria-label="End of turn: clip AUC, higher is better.">
+<rect width="100%" height="100%" fill="#FFFFFF"/>
+<text x="28.0" y="36.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="16" font-weight="normal" fill="#57534B" text-anchor="start">End of turn: clip AUC, higher is better.</text>
+<text x="915.8" y="36.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#151613" text-anchor="start">smart-turn v3.2</text>
+<rect x="893.8" y="24" width="14" height="14" rx="2" fill="#9A9089"/>
+<text x="782.1" y="36.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14" font-weight="normal" fill="#151613" text-anchor="start">Inworld SAVA</text>
+<rect x="760.1" y="24" width="14" height="14" rx="2" fill="#02793D"/>
+<line x1="300.0" y1="66.0" x2="300.0" y2="384.0" stroke="#D7D2CC" stroke-width="1"/>
+<text x="300.0" y="402.0" font-family="Geist Mono, SFMono-Regular, Menlo, Consolas, monospace" font-size="13.5" font-weight="normal" fill="#69665E" text-anchor="middle">0</text>
+<line x1="464.0" y1="66.0" x2="464.0" y2="384.0" stroke="#D7D2CC" stroke-width="1"/>
+<text x="464.0" y="402.0" font-family="Geist Mono, SFMono-Regular, Menlo, Consolas, monospace" font-size="13.5" font-weight="normal" fill="#69665E" text-anchor="middle">0.25</text>
+<line x1="628.0" y1="66.0" x2="628.0" y2="384.0" stroke="#D7D2CC" stroke-width="1"/>
+<text x="628.0" y="402.0" font-family="Geist Mono, SFMono-Regular, Menlo, Consolas, monospace" font-size="13.5" font-weight="normal" fill="#69665E" text-anchor="middle">0.5</text>
+<line x1="792.0" y1="66.0" x2="792.0" y2="384.0" stroke="#D7D2CC" stroke-width="1"/>
+<text x="792.0" y="402.0" font-family="Geist Mono, SFMono-Regular, Menlo, Consolas, monospace" font-size="13.5" font-weight="normal" fill="#69665E" text-anchor="middle">0.75</text>
+<line x1="956.0" y1="66.0" x2="956.0" y2="384.0" stroke="#D7D2CC" stroke-width="1"/>
+<text x="956.0" y="402.0" font-family="Geist Mono, SFMono-Regular, Menlo, Consolas, monospace" font-size="13.5" font-weight="normal" fill="#69665E" text-anchor="middle">1</text>
+<text x="286.0" y="111.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="16" font-weight="normal" fill="#151613" text-anchor="end">pipecat smart-turn test</text>
+<path d="M300.0,83.0 h638.5 a4,4 0 0 1 4,4 v12 a4,4 0 0 1 -4,4 h-638.5 z" fill="#02793D"/>
+<text x="950.5" y="98.0" font-family="Geist Mono, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" font-weight="600" fill="#151613" text-anchor="start">0.9795</text>
+<path d="M300.0,107.0 h640.5 a4,4 0 0 1 4,4 v12 a4,4 0 0 1 -4,4 h-640.5 z" fill="#9A9089"/>
+<text x="952.5" y="122.0" font-family="Geist Mono, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" font-weight="600" fill="#151613" text-anchor="start">0.9825</text>
+<text x="286.0" y="173.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="16" font-weight="normal" fill="#151613" text-anchor="end">Easy Turn</text>
+<path d="M300.0,145.0 h331.8 a4,4 0 0 1 4,4 v12 a4,4 0 0 1 -4,4 h-331.8 z" fill="#02793D"/>
+<text x="643.8" y="160.0" font-family="Geist Mono, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" font-weight="600" fill="#151613" text-anchor="start">0.5119</text>
+<path d="M300.0,169.0 h538.2 a4,4 0 0 1 4,4 v12 a4,4 0 0 1 -4,4 h-538.2 z" fill="#9A9089"/>
+<text x="850.2" y="184.0" font-family="Geist Mono, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" font-weight="600" fill="#151613" text-anchor="start">0.8266</text>
+<text x="286.0" y="235.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="16" font-weight="normal" fill="#151613" text-anchor="end">Easy Turn, anchored +200 ms</text>
+<path d="M300.0,207.0 h515.7 a4,4 0 0 1 4,4 v12 a4,4 0 0 1 -4,4 h-515.7 z" fill="#02793D"/>
+<text x="827.7" y="222.0" font-family="Geist Mono, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" font-weight="600" fill="#151613" text-anchor="start">0.7923</text>
+<path d="M300.0,231.0 h546.8 a4,4 0 0 1 4,4 v12 a4,4 0 0 1 -4,4 h-546.8 z" fill="#9A9089"/>
+<text x="858.8" y="246.0" font-family="Geist Mono, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" font-weight="600" fill="#151613" text-anchor="start">0.8396</text>
+<text x="286.0" y="297.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="16" font-weight="normal" fill="#151613" text-anchor="end">FastTurn</text>
+<path d="M300.0,269.0 h421.1 a4,4 0 0 1 4,4 v12 a4,4 0 0 1 -4,4 h-421.1 z" fill="#02793D"/>
+<text x="733.1" y="284.0" font-family="Geist Mono, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" font-weight="600" fill="#151613" text-anchor="start">0.6480</text>
+<path d="M300.0,293.0 h403.4 a4,4 0 0 1 4,4 v12 a4,4 0 0 1 -4,4 h-403.4 z" fill="#9A9089"/>
+<text x="715.4" y="308.0" font-family="Geist Mono, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" font-weight="600" fill="#151613" text-anchor="start">0.6211</text>
+<text x="286.0" y="359.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="16" font-weight="normal" fill="#151613" text-anchor="end">FastTurn, anchored +200 ms</text>
+<path d="M300.0,331.0 h422.4 a4,4 0 0 1 4,4 v12 a4,4 0 0 1 -4,4 h-422.4 z" fill="#02793D"/>
+<text x="734.4" y="346.0" font-family="Geist Mono, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" font-weight="600" fill="#151613" text-anchor="start">0.6501</text>
+<path d="M300.0,355.0 h411.2 a4,4 0 0 1 4,4 v12 a4,4 0 0 1 -4,4 h-411.2 z" fill="#9A9089"/>
+<text x="723.2" y="370.0" font-family="Geist Mono, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" font-weight="600" fill="#151613" text-anchor="start">0.6329</text>
+<text x="28.0" y="428.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="normal" fill="#69665E" text-anchor="start">Complete vs incomplete clips; anchored rows use a fixed speech-end offset.</text>
+<text x="28.0" y="450.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="normal" fill="#69665E" text-anchor="start">Full metrics, confidence intervals and caveats: bench/README.md.</text>
+</svg>

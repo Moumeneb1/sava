@@ -1,0 +1,170 @@
+# Copyright 2026 Inworld AI — Apache-2.0
+# Run by hand on a release tag in the public repository after preparing PyPI's
+# Trusted Publisher and the pypi environment. The package is built and tested
+# before the publishing job receives its short-lived upload credential.
+name: publish
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    if: github.server_url == 'https://github.com' && github.repository == 'inworld-ai/sava' && !github.event.repository.private && github.ref_type == 'tag'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78
+      - name: Python 3.12
+        # Use a uv-managed interpreter and pip consistently across runners.
+        run: |
+          uv venv --python 3.12 --python-preference only-managed --seed "${RUNNER_TEMP}/py"
+          echo "${RUNNER_TEMP}/py/bin" >> "$GITHUB_PATH"
+      - name: Validate the release tag, version and model pins
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_COMMIT: ${{ github.sha }}
+        run: |
+          python - <<'PY'
+          import ast
+          import os
+          import pathlib
+          import re
+          import runpy
+          import subprocess
+          import tomllib
+
+          project = tomllib.loads(pathlib.Path("pyproject.toml").read_text())["project"]
+          module = ast.parse(pathlib.Path("src/inworld/sava/__init__.py").read_text())
+          version = next(ast.literal_eval(node.value) for node in module.body
+                         if isinstance(node, ast.Assign)
+                         and any(isinstance(target, ast.Name) and target.id == "__version__"
+                                 for target in node.targets))
+          assert project["name"] == "inworld-sava"
+          assert version == project["version"]
+          assert os.environ["RELEASE_TAG"] == f"v{version}", "Tag and package version differ"
+          commit = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+          tag_commit = subprocess.check_output(
+              ["git", "rev-parse", f"refs/tags/{os.environ['RELEASE_TAG']}^{{commit}}"],
+              text=True).strip()
+          assert commit == tag_commit == os.environ["RELEASE_COMMIT"], "Release tag moved"
+          subprocess.run(["git", "merge-base", "--is-ancestor", commit,
+                          "refs/remotes/origin/main"], check=True)
+          registry = runpy.run_path("src/inworld/sava/registry.py")
+          for name, entry in registry["MODELS"].items():
+              assert re.fullmatch(r"[0-9a-f]{40}", entry.revision or ""), (
+                  f"{name}: pin the final Hugging Face commit before publishing")
+              assert re.fullmatch(r"[0-9a-f]{64}", entry.sha256 or ""), (
+                  f"{name}: a release checksum is required")
+          print(f"Validated {project['name']} {version} at {commit}")
+          PY
+
+  ci:
+    needs: preflight
+    uses: ./.github/workflows/ci.yml
+    with:
+      release: true
+    permissions:
+      contents: read
+
+  verify:
+    needs: [preflight, ci]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      HF_HUB_DISABLE_IMPLICIT_TOKEN: "1"
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      RELEASE_TAG: ${{ github.ref_name }}
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: python-distributions
+          path: dist/
+      - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78
+      - name: Python 3.12
+        # Use a uv-managed interpreter and pip consistently across runners.
+        run: |
+          uv venv --python 3.12 --python-preference only-managed --seed "${RUNNER_TEMP}/py"
+          echo "${RUNNER_TEMP}/py/bin" >> "$GITHUB_PATH"
+      - name: Install the wheel in a fresh environment
+        run: |
+          sudo apt-get update && sudo apt-get install -y --no-install-recommends libsndfile1
+          python -m venv "$RUNNER_TEMP/installed"
+          "$RUNNER_TEMP/installed/bin/python" -m pip install --upgrade pip
+          "$RUNNER_TEMP/installed/bin/python" -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          "$RUNNER_TEMP/installed/bin/python" -m pip install dist/*.whl
+      - name: Verify anonymous model downloads and installed inference
+        working-directory: ${{ runner.temp }}
+        env:
+          HF_HOME: ${{ runner.temp }}/huggingface
+        run: |
+          "$RUNNER_TEMP/installed/bin/python" - <<'PY'
+          import importlib.metadata
+          import os
+          import re
+
+          import huggingface_hub
+          import numpy as np
+          import torch
+          from inworld import sava
+          from inworld.sava import registry
+
+          torch.set_num_threads(1)
+          assert importlib.metadata.version("inworld-sava") == sava.__version__
+          assert os.environ["RELEASE_TAG"] == f"v{sava.__version__}"
+          for name, entry in registry.MODELS.items():
+              assert re.fullmatch(r"[0-9a-f]{40}", entry.revision or "")
+              path = huggingface_hub.hf_hub_download(
+                  entry.repo_id, entry.filename, revision=entry.revision,
+                  token=False, force_download=True)
+              assert registry.sha256_file(path) == entry.sha256
+              model = sava.load(name)
+              curves = sava.run(model, np.zeros(4000, dtype=np.float32))
+              assert curves.speech.shape == (7,)
+              assert np.isfinite(curves.speech).all()
+              assert np.isfinite(curves.turn).all()
+              print(f"Anonymous download and installed inference passed: {name}")
+          PY
+          "$RUNNER_TEMP/installed/bin/sava" --help
+
+  publish:
+    needs: verify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment:
+      name: pypi
+      url: https://pypi.org/project/inworld-sava/
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: python-distributions
+          path: dist/
+      - name: Confirm the release tag still identifies the tested commit
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_COMMIT: ${{ github.sha }}
+        run: |
+          refs=$(git ls-remote --tags https://github.com/inworld-ai/sava.git "refs/tags/${RELEASE_TAG}" "refs/tags/${RELEASE_TAG}^{}")
+          commit=$(awk '$2 ~ /\^\{\}$/ { peeled=$1 } { direct=$1 } END { print peeled ? peeled : direct }' <<<"${refs}")
+          if [ "${commit}" != "${RELEASE_COMMIT}" ]; then
+            echo "::error::release tag moved or disappeared after verification"
+            exit 1
+          fi
+      - name: Publish the tested distributions
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # release/v1

@@ -1,0 +1,110 @@
+{
+ "clips": 800,
+ "format": "easyturn",
+ "pad_ms": 0,
+ "anchor_ms": null,
+ "systems": {
+  "sava": {
+   "share_ended": {
+    "0.5": {
+     "complete/all": 0.5,
+     "complete/real": 0.82,
+     "complete/synthetic": 0.18,
+     "incomplete/all": 0.54,
+     "incomplete/real": 0.64,
+     "incomplete/synthetic": 0.44,
+     "backchannel/all": 0.35,
+     "backchannel/real": 0.5,
+     "backchannel/synthetic": 0.2,
+     "wait/all": 0.32,
+     "wait/real": 0.38,
+     "wait/synthetic": 0.26
+    }
+   },
+   "complete_vs_incomplete": {
+    "0.5": {
+     "all": {
+      "n": 600,
+      "accuracy": 0.48,
+      "acc_complete": 0.5,
+      "acc_incomplete": 0.46,
+      "miss": 0.5,
+      "false_alarm": 0.54
+     },
+     "real": {
+      "n": 300,
+      "accuracy": 0.59,
+      "acc_complete": 0.82,
+      "acc_incomplete": 0.36,
+      "miss": 0.18,
+      "false_alarm": 0.64
+     },
+     "synthetic": {
+      "n": 300,
+      "accuracy": 0.37,
+      "acc_complete": 0.18,
+      "acc_incomplete": 0.56,
+      "miss": 0.82,
+      "false_alarm": 0.44
+     }
+    }
+   },
+   "auc": {
+    "all": 0.5118666666666667,
+    "real": 0.6744888888888889,
+    "synthetic": 0.40822222222222226
+   }
+  },
+  "smart_turn": {
+   "share_ended": {
+    "0.5": {
+     "complete/all": 0.87,
+     "complete/real": 0.7933333333333333,
+     "complete/synthetic": 0.9466666666666667,
+     "incomplete/all": 0.32666666666666666,
+     "incomplete/real": 0.2733333333333333,
+     "incomplete/synthetic": 0.38,
+     "backchannel/all": 0.71,
+     "backchannel/real": 0.56,
+     "backchannel/synthetic": 0.86,
+     "wait/all": 0.9,
+     "wait/real": 0.92,
+     "wait/synthetic": 0.88
+    }
+   },
+   "complete_vs_incomplete": {
+    "0.5": {
+     "all": {
+      "n": 600,
+      "accuracy": 0.7716666666666666,
+      "acc_complete": 0.87,
+      "acc_incomplete": 0.6733333333333333,
+      "miss": 0.13,
+      "false_alarm": 0.32666666666666666
+     },
+     "real": {
+      "n": 300,
+      "accuracy": 0.76,
+      "acc_complete": 0.7933333333333333,
+      "acc_incomplete": 0.7266666666666667,
+      "miss": 0.20666666666666667,
+      "false_alarm": 0.2733333333333333
+     },
+     "synthetic": {
+      "n": 300,
+      "accuracy": 0.7833333333333333,
+      "acc_complete": 0.9466666666666667,
+      "acc_incomplete": 0.62,
+      "miss": 0.05333333333333334,
+      "false_alarm": 0.38
+     }
+    }
+   },
+   "auc": {
+    "all": 0.8265777777777777,
+    "real": 0.8482222222222221,
+    "synthetic": 0.8180888888888889
+   }
+  }
+ }
+}

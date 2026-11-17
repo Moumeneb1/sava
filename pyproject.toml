@@ -1,0 +1,73 @@
+[build-system]
+requires = ["hatchling==1.33.0", "hatch-fancy-pypi-readme==25.1.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "inworld-sava"
+version = "0.1.0"
+description = "SAVA, semantic acoustic voice activity: streaming voice activity and end-of-turn detection in one model."
+dynamic = ["readme"]
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+requires-python = ">=3.10"
+authors = [{ name = "Inworld AI" }]
+keywords = ["voice-activity-detection", "turn-taking", "end-of-turn", "speech", "streaming"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Topic :: Multimedia :: Sound/Audio :: Speech",
+]
+dependencies = [
+    "huggingface-hub",
+    "numpy",
+    "safetensors",
+    "soundfile",
+    "soxr",
+    "torch>=2.1",
+]
+
+[project.optional-dependencies]
+mic = ["sounddevice"]
+# The benchmarks' readers, scorers and baselines.
+eval = ["pyarrow", "scikit-learn", "silero-vad>=6.2.0", "onnxruntime", "transformers"]
+# scikit-learn: the benchmark scorers' metrics, which the bench tests exercise.
+dev = ["pytest", "yapf==0.43.0", "isort==9.0.2", "pylint==4.1.1", "scikit-learn"]
+
+[project.scripts]
+sava = "inworld.sava.cli:main"
+sava-doctor = "inworld.sava.doctor:main"
+
+[project.urls]
+Homepage = "https://github.com/inworld-ai/sava"
+Benchmark = "https://github.com/inworld-ai/sava/blob/main/bench/README.md"
+
+# Keep image paths local on GitHub; only the package description uses public URLs.
+[tool.hatch.metadata.hooks.fancy-pypi-readme]
+content-type = "text/markdown"
+fragments = [{ path = "README.md" }]
+
+[[tool.hatch.metadata.hooks.fancy-pypi-readme.substitutions]]
+pattern = '(src|srcset)="docs/assets/'
+replacement = '\1="https://raw.githubusercontent.com/inworld-ai/sava/main/docs/assets/'
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/inworld"]
+
+# Source distributions contain the inference package and its public documentation.
+[tool.hatch.build.targets.sdist]
+only-include = ["src", "pyproject.toml", "README.md", "MODEL_CARD.md", "LICENSE", "NOTICE",
+                "docs/USAGE.md", "docs/assets"]
+
+[tool.yapf]
+based_on_style = "google"
+column_limit = 80
+
+[tool.isort]
+profile = "google"
+src_paths = ["src", "bench/scripts", "docs", "tests", "tests/bench/scripts",
+             "*/src", "*/tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "*/tests"]
+python_files = ["test_*.py"]

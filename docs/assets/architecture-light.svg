@@ -1,0 +1,136 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="654" viewBox="0 0 1040 654" role="img" aria-label="SAVA architecture">
+<desc>SAVA takes 16 kHz mono audio in 40 ms frames of 640 samples. A causal log-mel front end uses a 400-sample window and 160-sample hop: four hops of 128 mel bins per frame. The frame&#x27;s log RMS is appended to these 512 features. The current and previous feature rows are concatenated and projected from 1026 to 512 channels, then RMS-normalized. The shared trunk has three Mamba-2 blocks followed by one causal sliding-window attention block and a final RMSNorm. Each block has a pre-normalized mixer and SwiGLU with residual connections. Mamba-2 uses state size 128, head dimension 64, expansion 2 and convolution width 4. Attention uses 8 query heads, 2 key/value heads, head dimension 64, rotary positions, normalized queries and keys, exclusive self attention and a 512-frame window. The speech branch projects to 512 channels, applies causal attention and RMSNorm, then has two linear sigmoid readouts. At emission step t, the released speech output q_t judges frame t-3: a fixed three-frame, 120 ms lookahead. The on-time readout p_t judges frame t. The turn branch receives the shared trunk features concatenated with a learned 64-dimensional embedding of p_(t-1), the previous frame&#x27;s on-time speech probability. It projects 576 channels to 512, applies causal attention and RMSNorm, and has linear sigmoid readouts for horizons 0, 5, 10 and 20 frames. The displayed end-of-turn probability r_t uses horizon 0 and is on time; it does not wait for the delayed speech verdict. The model has 25.5 million parameters and constant state size per stream.</desc>
+<rect width="100%" height="100%" fill="#FFFFFF"/>
+<path d="M24.0,124.0 L72.7,124.0" fill="none" stroke="#59636E" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M78.0,124.0 L69.5,127.2 L71.9,124.0 L69.5,120.8 Z" fill="#59636E"/>
+<text x="47.0" y="114.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="19" fill="#1F2328" text-anchor="middle"><tspan font-style="italic">x</tspan><tspan dy="4.18" font-size="13.68" font-style="italic">t</tspan></text>
+<text x="47.0" y="148.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.5" fill="#59636E" text-anchor="middle">16 kHz</text>
+<rect x="78.0" y="66.0" width="151.4" height="116" rx="8" fill="#DCE8F6"/>
+<text x="153.7" y="97.5" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17.5" fill="#1F2328" font-weight="600" text-anchor="middle">Causal log-mel</text>
+<text x="153.7" y="121.5" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15" fill="#3D444D" text-anchor="middle"><tspan font-style="italic">N</tspan> = 400, <tspan font-style="italic">H</tspan> = 160</text>
+<text x="153.7" y="142.5" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15" fill="#3D444D" text-anchor="middle">4 × 128 mel bins</text>
+<text x="153.7" y="163.5" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15" fill="#3D444D" text-anchor="middle">per 40 ms frame</text>
+<path d="M230.4,124.0 L248.8,124.0" fill="none" stroke="#59636E" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M254.1,124.0 L245.6,127.2 L248.0,124.0 L245.6,120.8 Z" fill="#59636E"/>
+<text x="242.2" y="50.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="16" fill="#1F2328" text-anchor="middle">+ log RMS</text>
+<rect x="255.1" y="66.0" width="158.7" height="116" rx="8" fill="#D7EEDF"/>
+<text x="334.5" y="97.5" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17.5" fill="#1F2328" font-weight="600" text-anchor="middle">Frame mixer</text>
+<text x="334.5" y="121.5" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15" fill="#3D444D" text-anchor="middle">2 × (512 + 1) → 512</text>
+<text x="334.5" y="142.5" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15" fill="#3D444D" text-anchor="middle">current + previous</text>
+<text x="334.5" y="163.5" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15" fill="#3D444D" text-anchor="middle">RMSNorm</text>
+<path d="M414.8,124.0 L433.3,124.0" fill="none" stroke="#59636E" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M438.6,124.0 L430.1,127.2 L432.5,124.0 L430.1,120.8 Z" fill="#59636E"/>
+<text x="426.7" y="50.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="16" fill="#1F2328" text-anchor="middle"><tspan font-style="italic">D</tspan> = 512</text>
+<rect x="439.6" y="66.0" width="157.2" height="116" rx="8" fill="#D7EEDF"/>
+<text x="518.2" y="97.5" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17.5" fill="#1F2328" font-weight="600" text-anchor="middle">Shared trunk</text>
+<text x="518.2" y="121.5" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15" fill="#3D444D" text-anchor="middle">3 × Mamba-2</text>
+<text x="518.2" y="142.5" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15" fill="#3D444D" text-anchor="middle">1 × causal attention</text>
+<text x="518.2" y="163.5" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15" fill="#3D444D" text-anchor="middle">final RMSNorm</text>
+<path d="M597.8,124.0 L616.3,124.0" fill="none" stroke="#59636E" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M621.5,124.0 L613.0,127.2 L615.4,124.0 L613.0,120.8 Z" fill="#59636E"/>
+<text x="609.7" y="50.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="16" fill="#1F2328" text-anchor="middle"><tspan font-style="italic">h</tspan><tspan dy="3.52" font-size="11.52" font-style="italic">t</tspan></text>
+<rect x="622.5" y="66.0" width="162.9" height="116" rx="8" fill="#F8E5C2"/>
+<text x="704.0" y="108.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17.5" fill="#1F2328" font-weight="600" text-anchor="middle">Speech branch</text>
+<text x="704.0" y="132.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15" fill="#3D444D" text-anchor="middle">512 → 512</text>
+<text x="704.0" y="153.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15" fill="#3D444D" text-anchor="middle">attention, RMSNorm</text>
+<path d="M786.5,92.0 L805.0,92.0" fill="none" stroke="#59636E" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M810.2,92.0 L801.7,95.2 L804.1,92.0 L801.7,88.8 Z" fill="#59636E"/>
+<rect x="811.2" y="66.0" width="204.8" height="52" rx="7" fill="#F8E5C2"/>
+<text x="913.6" y="89.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15.5" fill="#1F2328" font-weight="600" text-anchor="middle">Speech output</text>
+<text x="913.6" y="108.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.5" fill="#3D444D" text-anchor="middle"><tspan font-style="italic">q</tspan><tspan dy="2.97" font-size="9.72" font-style="italic">t</tspan><tspan dy="-2.97"> · frame </tspan><tspan font-style="italic">t</tspan> − 3 · 120 ms later</text>
+<path d="M786.5,156.0 L805.0,156.0" fill="none" stroke="#59636E" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M810.2,156.0 L801.7,159.2 L804.1,156.0 L801.7,152.8 Z" fill="#59636E"/>
+<rect x="811.2" y="130.0" width="204.8" height="52" rx="7" fill="#F8E5C2"/>
+<text x="913.6" y="153.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15.5" fill="#1F2328" font-weight="600" text-anchor="middle">On-time speech</text>
+<text x="913.6" y="172.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.5" fill="#3D444D" text-anchor="middle"><tspan font-style="italic">p</tspan><tspan dy="2.97" font-size="9.72" font-style="italic">t</tspan><tspan dy="-2.97"> · frame </tspan><tspan font-style="italic">t</tspan></text>
+<path d="M518.2,182.0 L518.2,294.0 Q518.2,304.0 528.2,304.0 L572.3,304.0" fill="none" stroke="#59636E" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M577.5,304.0 L569.0,307.2 L571.4,304.0 L569.0,300.8 Z" fill="#59636E"/>
+<text x="527.2" y="208.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="16" fill="#1F2328" text-anchor="start"><tspan font-style="italic">h</tspan><tspan dy="3.52" font-size="11.52" font-style="italic">t</tspan></text>
+<circle cx="588.5" cy="304.0" r="11" fill="#FFFFFF" stroke="#59636E" stroke-width="1.4"/>
+<path d="M585.7,298.3 V309.7 M591.4,298.3 V309.7" stroke="#59636E" stroke-width="1.4" stroke-linecap="round"/>
+<text x="588.5" y="333.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" fill="#59636E" text-anchor="middle">concat</text>
+<path d="M599.5,304.0 L616.3,304.0" fill="none" stroke="#59636E" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M621.5,304.0 L613.0,307.2 L615.4,304.0 L613.0,300.8 Z" fill="#59636E"/>
+<rect x="622.5" y="266.0" width="162.9" height="76" rx="8" fill="#F8E5C2"/>
+<text x="704.0" y="288.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17.5" fill="#1F2328" font-weight="600" text-anchor="middle">Turn branch</text>
+<text x="704.0" y="312.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15" fill="#3D444D" text-anchor="middle">576 → 512</text>
+<text x="704.0" y="333.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15" fill="#3D444D" text-anchor="middle">attention, RMSNorm</text>
+<path d="M786.5,304.0 L805.0,304.0" fill="none" stroke="#59636E" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M810.2,304.0 L801.7,307.2 L804.1,304.0 L801.7,300.8 Z" fill="#59636E"/>
+<rect x="811.2" y="278.0" width="204.8" height="52" rx="7" fill="#F8E5C2"/>
+<text x="913.6" y="301.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15.5" fill="#1F2328" font-weight="600" text-anchor="middle">End of turn</text>
+<text x="913.6" y="320.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.5" fill="#3D444D" text-anchor="middle"><tspan font-style="italic">r</tspan><tspan dy="2.97" font-size="9.72" font-style="italic">t</tspan><tspan dy="-2.97"> · on time · horizon 0 of 4</tspan></text>
+<path d="M839.2,182.0 L839.2,214.0 Q839.2,224.0 829.2,224.0 L761.7,224.0" fill="none" stroke="#59636E" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="5 4"/>
+<path d="M756.4,224.0 L764.9,220.8 L762.5,224.0 L764.9,227.2 Z" fill="#59636E"/>
+<rect x="566.5" y="198.0" width="188.8" height="52" rx="7" fill="#D7EEDF"/>
+<text x="661.0" y="221.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15.5" fill="#1F2328" font-weight="600" text-anchor="middle"><tspan font-style="italic">e</tspan><tspan dy="3.41" font-size="11.16" font-style="italic">t</tspan><tspan font-size="11.16">−1</tspan><tspan dy="-3.41"> = </tspan><tspan font-style="italic">E</tspan>(<tspan font-style="italic">p</tspan><tspan dy="3.41" font-size="11.16" font-style="italic">t</tspan><tspan font-size="11.16">−1</tspan><tspan dy="-3.41">)</tspan></text>
+<text x="661.0" y="240.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.5" fill="#3D444D" text-anchor="middle">one-frame delay · 64 dims</text>
+<path d="M588.5,250.0 L588.5,287.7" fill="none" stroke="#59636E" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="5 4"/>
+<path d="M588.5,293.0 L585.3,284.5 L588.5,286.9 L591.8,284.5 Z" fill="#59636E"/>
+<text x="24.0" y="236.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15.5" fill="#1F2328" font-weight="600" text-anchor="start">Timing at emission step <tspan font-style="italic">t</tspan></text>
+<text x="24.0" y="260.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14.5" fill="#3D444D" text-anchor="start"><tspan font-style="italic">q</tspan><tspan dy="3.19" font-size="10.44" font-style="italic">t</tspan><tspan dy="-3.19">: speech at frame </tspan><tspan font-style="italic">t</tspan> − 3, a fixed 120 ms lookahead.</text>
+<text x="24.0" y="284.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14.5" fill="#3D444D" text-anchor="start"><tspan font-style="italic">r</tspan><tspan dy="3.19" font-size="10.44" font-style="italic">t</tspan><tspan dy="-3.19">: turn ended by frame </tspan><tspan font-style="italic">t</tspan>, with no lookahead delay.</text>
+<text x="24.0" y="308.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14.5" fill="#3D444D" text-anchor="start">Dashed: the previous on-time speech conditions the turn.</text>
+<rect x="24" y="382" width="992" height="214" rx="12" fill="#F6F8FA"/>
+<text x="46.0" y="414.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15.5" fill="#1F2328" font-weight="600" text-anchor="start">Inside each trunk block</text>
+<text x="229.1" y="414.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15.5" fill="#59636E" text-anchor="start">· two pre-norm residual steps</text>
+<text x="64.0" y="482.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="21" fill="#1F2328" font-weight="600" text-anchor="middle">M</text>
+<text x="64.0" y="500.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" fill="#59636E" text-anchor="middle">Mamba-2</text>
+<path d="M94.0,480.0 L124.7,480.0" fill="none" stroke="#59636E" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M130.0,480.0 L121.5,483.2 L123.9,480.0 L121.5,476.8 Z" fill="#59636E"/>
+<rect x="130.0" y="454.0" width="169.0" height="52" rx="7" fill="#D7EEDF"/>
+<text x="214.5" y="477.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15.5" fill="#1F2328" font-weight="600" text-anchor="middle">Mamba-2</text>
+<text x="214.5" y="496.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.5" fill="#3D444D" text-anchor="middle">pre-norm mixer</text>
+<path d="M299.0,480.0 L310.8,480.0" fill="none" stroke="#59636E" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M316.0,480.0 L307.5,483.2 L309.9,480.0 L307.5,476.8 Z" fill="#59636E"/>
+<circle cx="112.0" cy="480.0" r="2.6" fill="#59636E"/>
+<path d="M112.0,480.0 L112.0,448.0 Q112.0,441.0 119.0,441.0 L320.0,441.0 Q327.0,441.0 327.0,448.0 L327.0,463.7" fill="none" stroke="#59636E" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M327.0,469.0 L323.8,460.5 L327.0,462.9 L330.3,460.5 Z" fill="#59636E"/>
+<circle cx="327.0" cy="480.0" r="11" fill="#FFFFFF" stroke="#59636E" stroke-width="1.4"/>
+<path d="M321.3,480.0 H332.8 M327.0,474.3 V485.7" stroke="#59636E" stroke-width="1.4" stroke-linecap="round"/>
+<path d="M338.0,480.0 L366.8,480.0" fill="none" stroke="#59636E" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M372.0,480.0 L363.5,483.2 L365.9,480.0 L363.5,476.8 Z" fill="#59636E"/>
+<rect x="372.0" y="454.0" width="169.0" height="52" rx="7" fill="#D7EEDF"/>
+<text x="456.6" y="477.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15.5" fill="#1F2328" font-weight="600" text-anchor="middle">SwiGLU</text>
+<text x="456.6" y="496.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.5" fill="#3D444D" text-anchor="middle">pre-norm feed-forward</text>
+<path d="M541.1,480.0 L552.8,480.0" fill="none" stroke="#59636E" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M558.1,480.0 L549.6,483.2 L552.0,480.0 L549.6,476.8 Z" fill="#59636E"/>
+<circle cx="354.0" cy="480.0" r="2.6" fill="#59636E"/>
+<path d="M354.0,480.0 L354.0,448.0 Q354.0,441.0 361.0,441.0 L562.1,441.0 Q569.1,441.0 569.1,448.0 L569.1,463.7" fill="none" stroke="#59636E" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M569.1,469.0 L565.8,460.5 L569.1,462.9 L572.3,460.5 Z" fill="#59636E"/>
+<circle cx="569.1" cy="480.0" r="11" fill="#FFFFFF" stroke="#59636E" stroke-width="1.4"/>
+<path d="M563.4,480.0 H574.8 M569.1,474.3 V485.7" stroke="#59636E" stroke-width="1.4" stroke-linecap="round"/>
+<path d="M580.1,480.0 L604.8,480.0" fill="none" stroke="#59636E" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M610.1,480.0 L601.6,483.2 L604.0,480.0 L601.6,476.8 Z" fill="#59636E"/>
+<text x="622.1" y="485.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14.5" fill="#3D444D" text-anchor="start">state 128 · head dimension 64 · expand 2 · conv 4</text>
+<text x="64.0" y="560.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="21" fill="#1F2328" font-weight="600" text-anchor="middle">A</text>
+<text x="64.0" y="578.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" fill="#59636E" text-anchor="middle">attention</text>
+<path d="M94.0,558.0 L124.7,558.0" fill="none" stroke="#59636E" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M130.0,558.0 L121.5,561.2 L123.9,558.0 L121.5,554.8 Z" fill="#59636E"/>
+<rect x="130.0" y="532.0" width="169.0" height="52" rx="7" fill="#D7EEDF"/>
+<text x="214.5" y="555.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15.5" fill="#1F2328" font-weight="600" text-anchor="middle">causal attention</text>
+<text x="214.5" y="574.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.5" fill="#3D444D" text-anchor="middle">pre-norm mixer</text>
+<path d="M299.0,558.0 L310.8,558.0" fill="none" stroke="#59636E" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M316.0,558.0 L307.5,561.2 L309.9,558.0 L307.5,554.8 Z" fill="#59636E"/>
+<circle cx="112.0" cy="558.0" r="2.6" fill="#59636E"/>
+<path d="M112.0,558.0 L112.0,526.0 Q112.0,519.0 119.0,519.0 L320.0,519.0 Q327.0,519.0 327.0,526.0 L327.0,541.7" fill="none" stroke="#59636E" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M327.0,547.0 L323.8,538.5 L327.0,540.9 L330.3,538.5 Z" fill="#59636E"/>
+<circle cx="327.0" cy="558.0" r="11" fill="#FFFFFF" stroke="#59636E" stroke-width="1.4"/>
+<path d="M321.3,558.0 H332.8 M327.0,552.3 V563.7" stroke="#59636E" stroke-width="1.4" stroke-linecap="round"/>
+<path d="M338.0,558.0 L366.8,558.0" fill="none" stroke="#59636E" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M372.0,558.0 L363.5,561.2 L365.9,558.0 L363.5,554.8 Z" fill="#59636E"/>
+<rect x="372.0" y="532.0" width="169.0" height="52" rx="7" fill="#D7EEDF"/>
+<text x="456.6" y="555.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15.5" fill="#1F2328" font-weight="600" text-anchor="middle">SwiGLU</text>
+<text x="456.6" y="574.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.5" fill="#3D444D" text-anchor="middle">pre-norm feed-forward</text>
+<path d="M541.1,558.0 L552.8,558.0" fill="none" stroke="#59636E" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M558.1,558.0 L549.6,561.2 L552.0,558.0 L549.6,554.8 Z" fill="#59636E"/>
+<circle cx="354.0" cy="558.0" r="2.6" fill="#59636E"/>
+<path d="M354.0,558.0 L354.0,526.0 Q354.0,519.0 361.0,519.0 L562.1,519.0 Q569.1,519.0 569.1,526.0 L569.1,541.7" fill="none" stroke="#59636E" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M569.1,547.0 L565.8,538.5 L569.1,540.9 L572.3,538.5 Z" fill="#59636E"/>
+<circle cx="569.1" cy="558.0" r="11" fill="#FFFFFF" stroke="#59636E" stroke-width="1.4"/>
+<path d="M563.4,558.0 H574.8 M569.1,552.3 V563.7" stroke="#59636E" stroke-width="1.4" stroke-linecap="round"/>
+<path d="M580.1,558.0 L604.8,558.0" fill="none" stroke="#59636E" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M610.1,558.0 L601.6,561.2 L604.0,558.0 L601.6,554.8 Z" fill="#59636E"/>
+<text x="622.1" y="563.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14.5" fill="#3D444D" text-anchor="start">8 query / 2 KV heads · RoPE · 512-frame window</text>
+<text x="24.0" y="632.0" font-family="Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="14.5" fill="#3D444D" text-anchor="start"><tspan font-weight="600">Size:</tspan> 25.5M parameters, 40 ms frames, constant state size per stream.</text>
+</svg>
