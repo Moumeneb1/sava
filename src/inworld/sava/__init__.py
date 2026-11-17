@@ -31,7 +31,7 @@ from inworld.sava import config
 from inworld.sava import segmenter
 from inworld.sava import streaming
 
-__version__ = "0.1.0"
+__version__ = "1.0.0"
 
 SAMPLE_RATE = config.SAMPLE_RATE
 FRAME_SECONDS = config.FRAME_SECONDS

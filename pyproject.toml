@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "inworld-sava"
-version = "0.1.0"
+version = "1.0.0"
 description = "SAVA, semantic acoustic voice activity: streaming voice activity and end-of-turn detection in one model."
 dynamic = ["readme"]
 license = "Apache-2.0"
