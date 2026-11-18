@@ -16,7 +16,10 @@ concurrency:
 
 jobs:
   preflight:
-    if: github.server_url == 'https://github.com' && github.repository == 'inworld-ai/sava' && !github.event.repository.private && github.ref_type == 'tag'
+    if: >-
+      github.server_url == 'https://github.com' &&
+      github.repository == 'inworld-ai/sava' &&
+      !github.event.repository.private && github.ref_type == 'tag'
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
@@ -62,6 +65,7 @@ jobs:
           subprocess.run(["git", "merge-base", "--is-ancestor", commit,
                           "refs/remotes/origin/main"], check=True)
           registry = runpy.run_path("src/inworld/sava/registry.py")
+          assert "inworld/sava" in registry["MODELS"], "Missing release model"
           for name, entry in registry["MODELS"].items():
               assert re.fullmatch(r"[0-9a-f]{40}", entry.revision or ""), (
                   f"{name}: pin the final Hugging Face commit before publishing")
@@ -125,6 +129,7 @@ jobs:
           torch.set_num_threads(1)
           assert importlib.metadata.version("inworld-sava") == sava.__version__
           assert os.environ["RELEASE_TAG"] == f"v{sava.__version__}"
+          assert "inworld/sava" in registry.MODELS, "Wheel is missing the release model"
           for name, entry in registry.MODELS.items():
               assert re.fullmatch(r"[0-9a-f]{40}", entry.revision or "")
               path = huggingface_hub.hf_hub_download(
@@ -141,14 +146,17 @@ jobs:
           "$RUNNER_TEMP/installed/bin/sava" --help
 
   publish:
-    needs: verify
+    needs: [preflight, ci, verify]
+    if: >-
+      github.server_url == 'https://github.com' &&
+      github.repository == 'inworld-ai/sava' &&
+      !github.event.repository.private && github.ref_type == 'tag'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     environment:
       name: pypi
       url: https://pypi.org/project/inworld-sava/
     permissions:
-      contents: read
       id-token: write
     steps:
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
