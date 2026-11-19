@@ -277,3 +277,22 @@ def test_graphed_streams_equal_eager_streams_and_sessions():
         assert all(
             np.array_equal(g.turns, e.turns)
             for g, e in zip(graphed[i], eager[i]))
+
+
+def test_graphed_streams_record_on_the_model_device_not_the_current_one():
+    if torch.cuda.device_count() < 2:
+        pytest.skip("needs two CUDA devices")
+    model = conftest.tiny_model().to("cuda:1")
+    audio = conftest.pcm(batch=1, frames=8)[0].numpy()
+    engine = streams.Streams(model, capacity=1, cuda_graphs=True)
+    stream = engine.open()
+
+    with torch.cuda.device(0):
+        got = [
+            engine.push({stream: audio})[stream],
+            engine.flush([stream])[stream]
+        ]
+
+    want = _session_frames(model, audio, [(0, audio.size)])
+    for g, w in zip(got, want):
+        _assert_frames_equal(g, w)

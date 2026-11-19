@@ -292,7 +292,9 @@ class Streams:
         """One frame of the streams in ``slots``: their probabilities, speech
         as ``Session`` emits it ``[B]`` and turn ``[B, K]``."""
         if self._graphed and slots == list(range(len(self._streams))):
-            return self._replay(pcm)
+            # the model's device, which need not be the current one
+            with torch.cuda.device(self.device):
+                return self._replay(pcm)
         return self._step(pcm, _Rows(slots, self.device))
 
     def _replay(self, pcm: torch.Tensor) -> tuple[torch.Tensor, ...]:
