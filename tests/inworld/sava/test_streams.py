@@ -219,3 +219,61 @@ def test_a_half_precision_model_streams_as_its_session():
     want = _session_frames(model, audio, [(0, audio.size)])
     for g, w in zip(got, want):
         _assert_frames_equal(g, w)
+
+
+def test_cuda_graphs_off_cuda_are_refused(model):
+    with pytest.raises(ValueError, match="CUDA"):
+        streams.Streams(model, capacity=2, cuda_graphs=True)
+
+
+def _run_plan(engine, audio, plan, skip):
+    """Opens per ``plan`` and pushes each tick the frames due so far; a
+    stream whose (index, tick) is in ``skip`` pushes nothing that tick, so
+    its next push carries several frames. Flushes once all is pushed."""
+    ids, got, sent = {}, {i: [] for i in range(len(plan))}, {}
+    for tick in range(max(start + n for start, n in plan) + 4):
+        for i, (start, _) in enumerate(plan):
+            if tick == start:
+                ids[i], sent[i] = engine.open(), 0
+        pieces = {}
+        for i in ids:
+            due = min(tick - plan[i][0] + 1, plan[i][1])
+            if (i, tick) not in skip and sent[i] < due:
+                pieces[i] = audio[i][sent[i] * FRAME:due * FRAME]
+                sent[i] = due
+        pushed = engine.push({ids[i]: a for i, a in pieces.items()})
+        for i in pieces:
+            got[i].append(pushed[ids[i]])
+        done = [i for i in ids if sent[i] == plan[i][1]]
+        flushed = engine.flush([ids[i] for i in done])
+        for i in done:
+            got[i].append(flushed[ids.pop(i)])
+    return got
+
+
+def test_graphed_streams_equal_eager_streams_and_sessions():
+    if not torch.cuda.is_available():
+        pytest.skip("CUDA graphs run on CUDA")
+    model = conftest.tiny_model().cuda()
+    plan = [(0, 30), (2, 12), (5, 25), (9, 4)]
+    audio = [
+        conftest.pcm(batch=1, frames=n, seed=i)[0].numpy()
+        for i, (_, n) in enumerate(plan)
+    ]
+    # stream 2 skips ticks, so those ticks leave an open stream out
+    skip = {(2, 7), (2, 8), (2, 15)}
+
+    graphed = _run_plan(streams.Streams(model, capacity=4, cuda_graphs=True),
+                        audio, plan, skip)
+
+    eager = _run_plan(streams.Streams(model, capacity=4), audio, plan, skip)
+    for i, a in enumerate(audio):
+        session = streaming.Session(model)
+        want = np.concatenate([session.push(a).speech, session.flush().speech])
+        got = np.concatenate([f.speech for f in graphed[i]])
+        np.testing.assert_array_equal(
+            got, np.concatenate([f.speech for f in eager[i]]))
+        np.testing.assert_allclose(got, want, atol=1e-5)
+        assert all(
+            np.array_equal(g.turns, e.turns)
+            for g, e in zip(graphed[i], eager[i]))

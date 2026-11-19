@@ -25,6 +25,8 @@ a ring of the window, the newest key written over the one the window drops,
 so a step writes one frame of state per stream rather than rebuilding it.
 Open streams keep consecutive slots (a flushed stream's slot takes the last
 stream's state), so a step of every open stream works on its state in place.
+With ``cuda_graphs``, a step of every open stream replays as a CUDA graph of
+the next recorded batch size, one launch instead of several hundred.
 Each stream's outputs equal those of a ``Session`` given the same audio, to
 float32 rounding (the attention sums its window in ring order).
 """
@@ -42,6 +44,10 @@ from inworld.sava import model as model_lib
 from inworld.sava import modules
 from inworld.sava import ssd
 from inworld.sava import streaming
+
+# Batch sizes recorded as CUDA graphs, as an LLM server records its decode
+# steps; a step of n streams replays the smallest size of at least n.
+GRAPH_SIZES = (1, 2, 4, 8, 16, 32, 64, 128, 256, 512)
 
 
 @dataclasses.dataclass
@@ -100,10 +106,18 @@ class Streams:
     ``open`` starts a stream and returns its id; ``push`` takes samples for
     any streams and returns, per stream, the frames it stepped, as
     ``Session.push`` would; ``flush`` ends streams as ``Session.flush`` does
-    and frees their slots. Not safe for concurrent calls.
+    and frees their slots. ``cuda_graphs`` (CUDA only) replays each step of
+    every open stream as a CUDA graph, recorded the first time a batch size
+    is reached. Not safe for concurrent calls.
+
+    Raises:
+        ValueError: For a capacity below one, or ``cuda_graphs`` off CUDA.
     """
 
-    def __init__(self, model: model_lib.SavaModel, capacity: int) -> None:
+    def __init__(self,
+                 model: model_lib.SavaModel,
+                 capacity: int,
+                 cuda_graphs: bool = False) -> None:
         if capacity < 1:
             raise ValueError("capacity must be at least 1.")
         self.model = model
@@ -111,6 +125,10 @@ class Streams:
         self.lag = model.lookahead_frames
         device = next(model.parameters()).device
         self.device = device
+        if cuda_graphs and device.type != "cuda":
+            raise ValueError("cuda_graphs needs the model on a CUDA device.")
+        self._graphed = cuda_graphs
+        self._graphs = {}
         slots = capacity
         # float32 state whatever the model's dtype, as a Session keeps it
         model.embedder.init_state(1, device)
@@ -273,7 +291,44 @@ class Streams:
                     slots: list[int]) -> tuple[torch.Tensor, torch.Tensor]:
         """One frame of the streams in ``slots``: their probabilities, speech
         as ``Session`` emits it ``[B]`` and turn ``[B, K]``."""
+        if self._graphed and slots == list(range(len(self._streams))):
+            return self._replay(pcm)
         return self._step(pcm, _Rows(slots, self.device))
+
+    def _replay(self, pcm: torch.Tensor) -> tuple[torch.Tensor, ...]:
+        """A step of every open stream, which hold slots 0 to n - 1, as a
+        graph of the next recorded size: its extra rows step free slots, whose
+        state ``open`` resets."""
+        batch = pcm.shape[0]
+        size = min(next((s for s in GRAPH_SIZES if s >= batch), self.capacity),
+                   self.capacity)
+        if size not in self._graphs:
+            self._graphs[size] = self._record(size)
+        graph, static, outputs, _ = self._graphs[size]
+        static[:batch].copy_(pcm)
+        static[batch:].zero_()
+        graph.replay()
+        return tuple(output[:batch] for output in outputs)
+
+    def _record(self, size: int):
+        """Records the step of slots 0 to ``size`` - 1. Warming up runs the
+        step, so their state is restored after it. The rows are kept with the
+        graph: it reads their slot indices where they were when recorded."""
+        rows = _Rows(list(range(size)), self.device)
+        saved = [buffer[:size].clone() for buffer in self._buffers()]
+        static = torch.zeros(size, config.FRAME_SAMPLES, device=self.device)
+        side = torch.cuda.Stream()
+        side.wait_stream(torch.cuda.current_stream())
+        with torch.cuda.stream(side):
+            for _ in range(2):
+                self._step(static, rows)
+        torch.cuda.current_stream().wait_stream(side)
+        for buffer, value in zip(self._buffers(), saved):
+            buffer[:size].copy_(value)
+        graph = torch.cuda.CUDAGraph()
+        with torch.cuda.graph(graph):
+            outputs = self._step(static, rows)
+        return graph, static, outputs, rows
 
     def _step(self, pcm: torch.Tensor,
               slots: _Rows) -> tuple[torch.Tensor, torch.Tensor]:

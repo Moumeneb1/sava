@@ -40,6 +40,10 @@ frames = streams.push({caller: piece, other: piece})   # Frames by stream id
 frames = streams.flush([caller])                        # ends it, frees its slot
 ```
 
+On a GPU, `sava.Streams(model, capacity=64, cuda_graphs=True)` replays each
+step of every open stream as a CUDA graph, one launch instead of several
+hundred; a step that leaves out an open stream runs as usual.
+
 `sava.segment(curves, sava.Policy(), model.lookahead_frames)` and
 `sava.TurnSegmenter` turn the probabilities into turns with the reference
 policy: a turn opens on the first frame judged speech and starts 800 ms
