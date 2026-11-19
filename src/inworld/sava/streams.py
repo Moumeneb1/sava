@@ -26,7 +26,9 @@ so a step writes one frame of state per stream rather than rebuilding it.
 Open streams keep consecutive slots (a flushed stream's slot takes the last
 stream's state), so a step of every open stream works on its state in place.
 With ``cuda_graphs``, a step of every open stream replays as a CUDA graph of
-the next recorded batch size, one launch instead of several hundred.
+the next recorded batch size, one launch instead of several hundred; with
+Triton 3, the graph advances the Mamba-2 state and attends over the ring with
+kernels (``triton_streams``) where they lie in the slot buffers.
 Each stream's outputs equal those of a ``Session`` given the same audio, to
 float32 rounding (the attention sums its window in ring order).
 """
@@ -100,6 +102,16 @@ def _rotate(x: torch.Tensor, positions: torch.Tensor,
                      dim=-1).to(x.dtype)
 
 
+def _kernels():
+    """The CUDA kernels (``triton_streams``), or None without Triton 3."""
+    try:
+        # pylint: disable-next=import-outside-toplevel
+        from inworld.sava import triton_streams
+    except ImportError:
+        return None
+    return triton_streams
+
+
 class Streams:
     """Up to ``capacity`` streams of one model, stepped one frame at a time.
 
@@ -129,6 +141,10 @@ class Streams:
             raise ValueError("cuda_graphs needs the model on a CUDA device.")
         self._graphed = cuda_graphs
         self._graphs = {}
+        # the kernels run in the recorded steps only: launched one by one,
+        # outside a graph, Triton's launches cost more than they save
+        self._kernels = _kernels() if cuda_graphs else None
+        self._recording = False
         slots = capacity
         # float32 state whatever the model's dtype, as a Session keeps it
         model.embedder.init_state(1, device)
@@ -319,6 +335,7 @@ class Streams:
         rows = _Rows(list(range(size)), self.device)
         saved = [buffer[:size].clone() for buffer in self._buffers()]
         static = torch.zeros(size, config.FRAME_SAMPLES, device=self.device)
+        self._recording = True
         side = torch.cuda.Stream()
         side.wait_stream(torch.cuda.current_stream())
         with torch.cuda.stream(side):
@@ -330,6 +347,7 @@ class Streams:
         graph = torch.cuda.CUDAGraph()
         with torch.cuda.graph(graph):
             outputs = self._step(static, rows)
+        self._recording = False
         return graph, static, outputs, rows
 
     def _step(self, pcm: torch.Tensor,
@@ -395,6 +413,10 @@ class Streams:
                  log_decay: torch.Tensor, b: torch.Tensor,
                  c: torch.Tensor) -> torch.Tensor:
         """One frame of the recurrence of the slots' state, written back."""
+        kernels = self._kernels if self._recording else None
+        if (kernels is not None and ssm.dtype == torch.float32 and
+                kernels.supports_advance(ssm.shape[-1])):
+            return kernels.advance(ssm, slots.index, x, log_decay, b, c)
         if slots.span is not None:
             return _advance_in_place(ssm[slots.span], x, log_decay, b, c)
         y, advanced = ssd.recurrent_step(x, log_decay, b, c, slots.take(ssm))
@@ -429,6 +451,12 @@ class Streams:
                 v: torch.Tensor, window: int, scale: float) -> torch.Tensor:
         """Writes the frame's key and value into each slot's ring and attends
         over the ring: the ``window`` newest positions, none before 0."""
+        kernels = self._kernels if self._recording else None
+        if kernels is not None and kernels.supports_attention(
+                q.shape[-1], window, q.shape[2] // k.shape[2]):
+            return kernels.attend(state.keys, state.values, slots.index,
+                                  positions, q.contiguous(), k.contiguous(),
+                                  v.contiguous(), scale)
         newest = positions % window
         state.keys[slots.index, newest] = k[:, 0].to(state.keys.dtype)
         state.values[slots.index, newest] = v[:, 0].to(state.values.dtype)

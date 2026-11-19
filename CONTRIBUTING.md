@@ -33,7 +33,7 @@ The tests use a tiny model and need no weights or audio.
 After `make install`, `make test` passes with nothing failing and these
 skips, which `pytest -rs` names: the golden parity test, without the released
 checkpoint under `models/sava.safetensors` (or `SAVA_GOLDEN_MODEL`), and the
-CUDA graph test of `Streams`, without a CUDA GPU. The checkpoint's expected
+CUDA graph and kernel tests of `Streams`, without a CUDA GPU. The checkpoint's expected
 checksum is in `src/inworld/sava/registry.py`. Include
 the skip count when you report a run.
 
