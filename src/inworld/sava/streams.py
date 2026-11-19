@@ -110,16 +110,16 @@ class Streams:
         self.capacity = capacity
         self.lag = model.lookahead_frames
         device = next(model.parameters()).device
-        dtype = next(model.parameters()).dtype
         self.device = device
         slots = capacity
+        # float32 state whatever the model's dtype, as a Session keeps it
         model.embedder.init_state(1, device)
         self._frontend = torch.zeros(slots, mel.CONTEXT, device=device)
-        self._mixer = model.mixer.init_state(slots, device, dtype).tail
+        self._mixer = model.mixer.init_state(slots, device, torch.float32).tail
         self._mamba = {}
         self._attention = {}
         for name, block in self._blocks():
-            state = block.init_state(slots, device, dtype)
+            state = block.init_state(slots, device, torch.float32)
             if isinstance(block, modules.MambaBlock):
                 self._mamba[name] = state
             else:
@@ -177,10 +177,17 @@ class Streams:
             KeyError: For an id that is not open.
             ValueError: If samples are not a one-dimensional float array.
         """
+        # every id and piece is checked before any stream takes its piece
+        streams = {stream_id: self._streams[stream_id] for stream_id in pieces}
+        checked = {
+            stream_id:
+                streaming._mono_float(samples
+                                     )  # pylint: disable=protected-access
+            for stream_id, samples in pieces.items()
+        }
         chunks = {}
-        for stream_id, samples in pieces.items():
-            stream = self._streams[stream_id]
-            samples = streaming._mono_float(samples)  # pylint: disable=protected-access
+        for stream_id, samples in checked.items():
+            stream = streams[stream_id]
             pending = np.concatenate([stream.pending, samples])
             whole = pending.size - pending.size % config.FRAME_SAMPLES
             chunks[stream_id], stream.pending = pending[:whole], pending[whole:]
@@ -195,9 +202,13 @@ class Streams:
         Raises:
             KeyError: For an id that is not open.
         """
+        # every id is checked before any stream is ended
+        streams = {
+            stream_id: self._streams[stream_id]
+            for stream_id in dict.fromkeys(stream_ids)
+        }
         chunks = {}
-        for stream_id in stream_ids:
-            stream = self._streams[stream_id]
+        for stream_id, stream in streams.items():
             tail = (-stream.pending.size) % config.FRAME_SAMPLES
             chunks[stream_id] = np.concatenate([
                 stream.pending,

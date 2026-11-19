@@ -35,7 +35,7 @@ and flush at any time, and each stream gets what its own session would:
 
 ```python
 streams = sava.Streams(model, capacity=64)             # up to 64 open streams
-caller = streams.open()
+caller, other = streams.open(), streams.open()
 frames = streams.push({caller: piece, other: piece})   # Frames by stream id
 frames = streams.flush([caller])                        # ends it, frees its slot
 ```

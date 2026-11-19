@@ -15,6 +15,7 @@
 
 import numpy as np
 import pytest
+import torch
 
 import conftest
 from inworld.sava import config
@@ -161,3 +162,60 @@ def test_non_mono_or_integer_samples_are_refused(model, samples):
 def test_a_capacity_below_one_is_refused(model):
     with pytest.raises(ValueError):
         streams.Streams(model, capacity=0)
+
+
+def test_flushing_several_streams_keeps_the_others_streaming(model):
+    audio = [
+        conftest.pcm(batch=1, frames=20, seed=i)[0].numpy() for i in range(3)
+    ]
+    engine = streams.Streams(model, capacity=3)
+    ids = [engine.open() for _ in audio]
+    first = engine.push({s: a[:10 * FRAME] for s, a in zip(ids, audio)})
+
+    engine.flush(ids[:2])
+    rest = [
+        engine.push({ids[2]: audio[2][10 * FRAME:]})[ids[2]],
+        engine.flush([ids[2]])[ids[2]]
+    ]
+
+    want = _session_frames(model, audio[2], [(0, 10 * FRAME),
+                                             (10 * FRAME, 20 * FRAME)])
+    for g, w in zip([first[ids[2]]] + rest, want):
+        _assert_frames_equal(g, w)
+
+
+def test_a_refused_push_or_flush_consumes_no_stream_audio(model):
+    audio = conftest.pcm(batch=1, frames=6)[0].numpy()
+    engine = streams.Streams(model, capacity=2)
+    stream = engine.open()
+    with pytest.raises(ValueError):
+        engine.push({
+            stream: audio[:FRAME + 5],
+            engine.open(): np.zeros((2, FRAME), dtype=np.float32)
+        })
+    with pytest.raises(KeyError):
+        engine.flush([stream, 99])
+
+    got = [
+        engine.push({stream: audio[:FRAME + 5]})[stream],
+        engine.push({stream: audio[FRAME + 5:]})[stream],
+        engine.flush([stream])[stream]
+    ]
+
+    want = _session_frames(model, audio, [(0, FRAME + 5),
+                                          (FRAME + 5, audio.size)])
+    for g, w in zip(got, want):
+        _assert_frames_equal(g, w)
+
+
+def test_a_half_precision_model_streams_as_its_session():
+    model = conftest.tiny_model().to(torch.bfloat16)
+    audio = conftest.pcm(batch=1, frames=30)[0].numpy()
+    engine = streams.Streams(model, capacity=1)
+    stream = engine.open()
+
+    got = [engine.push({stream: audio})[stream], engine.flush([stream])[stream]]
+
+    want = _session_frames(model, audio, [(0, audio.size)])
+    for g, w in zip(got, want):
+        _assert_frames_equal(g, w)
