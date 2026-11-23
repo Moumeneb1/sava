@@ -2,7 +2,7 @@
 .DEFAULT_GOAL := help
 
 PYTHON ?= .venv/bin/python
-STYLE_PATHS := src bench/scripts docs tests $(wildcard */src */tests)
+STYLE_PATHS := src bench/scripts docs examples tests $(wildcard */src */tests)
 ISORT_PATHS := $(STYLE_PATHS)
 FORMAT_PATHS := $(STYLE_PATHS)
 

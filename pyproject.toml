@@ -65,8 +65,8 @@ column_limit = 80
 
 [tool.isort]
 profile = "google"
-src_paths = ["src", "bench/scripts", "docs", "tests", "tests/bench/scripts",
-             "*/src", "*/tests"]
+src_paths = ["src", "bench/scripts", "docs", "examples", "tests",
+             "tests/bench/scripts", "*/src", "*/tests"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests", "*/tests"]
