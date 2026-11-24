@@ -79,7 +79,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--join_every",
                         type=int,
                         default=5,
-                        help="ticks between one caller joining and the next")
+                        help="how many 40 ms audio processing steps between "
+                        "each caller joining")
     return parser.parse_args(argv)
 
 
