@@ -45,8 +45,9 @@ step of every open stream as a CUDA graph, one launch instead of several
 hundred; a step that leaves out an open stream runs as usual. With Triton 3,
 the graphs also advance the Mamba-2 state and attend with fused kernels. The
 code lives in `inworld.sava.serving`, and
-[`examples/serve_many_streams.py`](../examples/serve_many_streams.py) serves
-simulated callers with it, cutting each one's audio into turns as it streams.
+[`examples/serve_many_streams.py`](https://github.com/inworld-ai/sava/blob/main/examples/serve_many_streams.py)
+serves simulated callers with it, cutting each one's audio into turns as it
+streams.
 
 `sava.segment(curves, sava.Policy(), model.lookahead_frames)` and
 `sava.TurnSegmenter` turn the probabilities into turns with the reference
